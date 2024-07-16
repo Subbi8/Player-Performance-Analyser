@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Performance Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #7e0c8a;
+            color: #fff;
+            padding: 1rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .nav-links {
+            list-style-type: none;
+            display: flex;
+        }
+
+        .nav-links li {
+            margin-right: 1rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-links a:hover {
+            background-color: #7e0c8a;
+        }
+
+        .home {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .home h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .home p {
+            font-size: 1.2rem;
+            color: #7e0c8a;
+            margin-bottom: 2rem;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        
+    .btn {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        background-color: #7e0c8a; /* Change background color to purple */
+        color: #fff; /* White text color */
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        border: none; /* Remove border if not needed */
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: #5f0470; /* Darker purple on hover */
+    }
+
+        /* Footer styles */
+        footer {
+            background-color: #7e0c8a;
+            color: #ff30f1;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .analysis {
+            padding: 20px;
+            background-color: #ed80e6;
+            box-shadow: 0 0 10px #7e0c8a(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin: 20px auto;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .analysis h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .analysis form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .analysis form label {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .analysis form input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .analysis form .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #7e0c8a;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .analysis form .btn:hover {
+            background-color: #7e0c8a;
+        }
+
+        .charts-container {
+            text-align: center;
+        }
+
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 0 400px;
+        }
+
+        .chart {
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+        }
+
+        .chart img {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .line-chart {
+            grid-column: span 2; 
+            max-width: 700px; 
+        }
+
+        .predictions {
+            text-align: center;
+        }
+
+        .predictions table {
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+
+        .predictions th, .predictions td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .predictions th {
+            background-color: #f2f2f2;
+        }
+
+        .radar-chart {
+            grid-area: radar;
+        }
+
+        .bar-chart {
+            grid-area: bar;
+        }
+
+        .line-chart {
+            grid-area: line;
+        }
+
+        .pie-chart {
+            grid-area: pie;
+        }
+
+        .charts {
+            grid-template-areas:
+                "radar bar"
+                "line line" 
+                "line line"
+                "pie pie";
+        }
+
+        .autocomplete-suggestions {
+            border: 1px solid #ddd;
+            background: #fff;
+            max-height: 200px;
+            overflow-y: auto;
+            position: absolute;
+            z-index: 9999;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .autocomplete-suggestion {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .autocomplete-suggestion:hover {
+            background-color: #f2f2f2;
+        }
+        h1 , h2 , h3{
+            color:#7e0c8a;
+        }
+        .tb {
+            color:#7e0c8a;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='cricket_logo.png') }}" alt="Cricket Logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('analyze') }}">Analysis</a></li>
+                <li><a href="{{ url_for('predictor') }}">Predictor</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="analysis">
+        <div class="container">
+            <h1>Player Performance Analysis</h1>
+            <form id="analysis-form" action="{{ url_for('predictor') }}" method="post">
+                <input type="text" id="playerName" name="playerName" placeholder="Enter Player Name" autocomplete="off" required>
+                <div id="autocomplete-list" class="autocomplete-suggestions"></div>
+                <button class="btn" type="submit" value="Submit">Submit</button>
+
+            </form>
+            
+            {% if lineplot_img or predictions %}
+                <div class="charts-container">
+                    <h2>{{ player_name }}'s Performance</h2>
+                    <div class="charts">
+                        {% if lineplot_img %}
+                            <div class="chart line-chart">
+                                <img src="data:image/png;base64,{{ lineplot_img }}" alt="Line Plot">
+                            </div>
+                        {% endif %}
+                        {% if predictions %}
+                            <div class="chart predictions">
+                                <h3>Predicted Future Runs</h3>
+                                <table class = "tb">
+                                    <thead>
+                                        <tr>
+                                            <th>Season</th>
+                                            <th>Predicted Runs</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for prediction in predictions %}
+                                            <tr>
+                                                <td>{{ prediction.season }}</td>
+                                                <td>{{ prediction.predicted_runs }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% elif error_message %}
+                <p>{{ error_message }}</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('analysis-form').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent form from submitting immediately
+
+            const playerName = document.getElementById('playerName').value;
+            const formData = new FormData(document.getElementById('analysis-form'));
+
+            fetch('/check_player', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    document.getElementById('analysis-form').style.display = 'none';
+                    document.getElementById('analysis-form').submit(); // Now submit the form
+                } else {
+                    alert('Player does not exist');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        const playerNameInput = document.getElementById('playerName');
+        const autocompleteList = document.getElementById('autocomplete-list');
+
+        playerNameInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            autocompleteList.innerHTML = '';
+            if (query.length === 0) {
+                return;
+            }
+
+            fetch(`/autocomplete?query=${query}`)
+                .then(response => response.json())
+                .then(suggestions => {
+                    suggestions.forEach(name => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.textContent = name;
+                        suggestionItem.classList.add('autocomplete-suggestion');
+                        suggestionItem.addEventListener('click', function() {
+                            playerNameInput.value = name;
+                            autocompleteList.innerHTML = '';
+                        });
+                        autocompleteList.appendChild(suggestionItem);
+                    });
+                });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target !== playerNameInput) {
+                autocompleteList.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>

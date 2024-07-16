@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='cricket_logo.png') }}" alt="Cricket Logo" class="logo">
+                <span class="logo-text">CricPro</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('analyze') }}">Analysis</a></li>
+                <li><a href="{{ url_for('predictor') }}">Predictor</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="home">
+        <div class="carousel">
+            <div><img src="{{ url_for('static', filename='australia.jpg') }}" alt="Slide 1"></div>
+            <div><img src="{{ url_for('static', filename='india.jpg') }}" alt="Slide 2"></div>
+            <div><img src="{{ url_for('static', filename='ipl.jpg') }}" alt="Slide 3"></div>
+        </div>
+        <h1>Welcome to Cricket Analysis</h1>
+        <p>Explore cricket stats, trends, and predictions with our tools!</p>
+        <div class="buttons">
+            <a href="{{ url_for('analyze') }}" class="btn">Analysis</a>
+            <a href="{{ url_for('predictor') }}" class="btn">Predictor</a>
+        </div>
+    </section>
+
+    <section class="love-cricket">
+        <h2>Indians Love Cricket</h2>
+        <p>Cricket is not just a sport in India; it is a religion. From the streets to the stadiums, cricket is played and watched with immense passion and dedication. The game unites people from all walks of life and brings a sense of joy and excitement to millions of fans across the country.</p>
+    </section>
+
+    <section class="tournaments">
+        <h2>Upcoming Cricket Tournaments</h2>
+        <ul>
+            <li>ICC Cricket World Cup - October 2024</li>
+            <li>Indian Premier League - March 2025</li>
+            <li>T20 World Cup - November 2025</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Cricket Analysis. All rights reserved.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.carousel').slick({
+                autoplay: true,
+                autoplaySpeed: 2000,
+                dots: true,
+                arrows: true,
+                infinite: true,
+                speed: 500,
+                fade: true,
+                cssEase: 'linear'
+            });
+        });
+    </script>
+</body>
+</html>
