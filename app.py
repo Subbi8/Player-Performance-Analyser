@@ -8,12 +8,17 @@ from flask import Flask, render_template, request, jsonify
 import io
 import base64
 from sklearn.linear_model import LinearRegression
+import os
 
 app = Flask(__name__)
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the full paths to the CSV files
+batsman_data_path = os.path.join(base_dir, 'data', 'all_season_batting_card.csv')
+bowler_data_path = os.path.join(base_dir, 'data', 'all_season_bowling_card.csv')
+
 # Load the CSV files
-batsman_data_path = r'C:\Users\Subham.Bhuyan\Desktop\Projects\FINAL\all_season_batting_card.csv'
-bowler_data_path = r'C:\Users\Subham.Bhuyan\Desktop\Projects\FINAL\all_season_bowling_card.csv'
 batsman_data = pd.read_csv(batsman_data_path)
 bowler_data = pd.read_csv(bowler_data_path)
 
