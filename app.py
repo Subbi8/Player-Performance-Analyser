@@ -90,58 +90,65 @@ def create_line_plot(player_data, player_name):
 
 # Function to predict future scores
 def predict_future_scores(player_name, data):
-    player_data = data[data['fullName'] == player_name]
+    player_data = data[data['fullName'] == player_name].copy()
 
     if player_data.empty:
         return None, f"No data found for player: {player_name}"
 
-    # Convert the season column to datetime, assuming it's just the year
-    player_data['season'] = pd.to_datetime(player_data['season'], format='%Y', errors='coerce')
+    # Convert the season column to datetime (accepts ints/strings); coerce errors to NaT
+    player_data['season'] = pd.to_datetime(player_data['season'].astype(str), format='%Y', errors='coerce')
 
     # Drop rows where the season conversion failed
     player_data = player_data.dropna(subset=['season'])
 
-    # Aggregate the data to get total runs per season
-    season_data = player_data.groupby(player_data['season'].dt.year)['runs'].sum().reset_index()
+    if player_data.empty:
+        return None, f"No valid season data for player: {player_name}"
 
-    # Rename columns for clarity
+    # Aggregate total runs per season (by year)
+    season_data = player_data.groupby(player_data['season'].dt.year)['runs'].sum().reset_index()
     season_data.columns = ['season', 'total_runs']
 
-    # Feature engineering
+    # If not enough seasons to fit a regression, return a friendly message
+    if len(season_data) < 2:
+        return None, f"Not enough historical season points to predict for {player_name}. Need at least 2 seasons."
+
+    # Prepare X and y
     X = season_data[['season']]
     y = season_data['total_runs']
 
-    # Train the model
+    # Train the model with a try/except in case of numeric issues
     model = LinearRegression()
-    model.fit(X, y)
+    try:
+        model.fit(X, y)
+    except Exception as e:
+        return None, f"Model training failed: {str(e)}"
 
-    # Predict future runs for the next 2, 4, 6, 8, and 10 seasons
+    # Predict future seasons (adjust as needed)
     future_seasons = np.array([2024, 2025, 2026]).reshape(-1, 1)
     future_runs = model.predict(future_seasons)
+    future_runs = np.round(future_runs).astype(int)
 
-    # Convert predicted runs to integers
-    future_runs = future_runs.astype(int)
-
-    # Create a DataFrame for the predictions
     predictions = pd.DataFrame({'season': future_seasons.flatten(), 'predicted_runs': future_runs})
 
-    # Plot the results
-    plt.figure(figsize=(10, 6))
-    plt.scatter(X, y, color='blue', label='Actual runs')
-    plt.plot(future_seasons, future_runs, color='red', linestyle='dashed', marker='o', label='Predicted runs')
-    plt.xlabel('Season')
-    plt.ylabel('Total Runs')
-    plt.title(f'Performance Prediction for {player_name}')
-    plt.legend()
-    plt.grid(True)
+    # Plot actual + predictions
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(X['season'], y, color='blue', label='Actual runs')
+    ax.plot(future_seasons.flatten(), future_runs, color='red', linestyle='dashed', marker='o', label='Predicted runs')
+    ax.set_xlabel('Season')
+    ax.set_ylabel('Total Runs')
+    ax.set_title(f'Performance Prediction for {player_name}')
+    ax.legend()
+    ax.grid(True)
+    plt.tight_layout()
 
-    # Save the plot as a PNG image
     img = io.BytesIO()
     plt.savefig(img, format='png')
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
+    plt.close(fig)   # IMPORTANT: close the figure to free memory
 
     return predictions.to_dict(orient='records'), plot_url
+
 
 # Route for home page
 @app.route('/')
